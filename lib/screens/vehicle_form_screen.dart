@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class VehicleFormScreen extends StatefulWidget {
   @override
@@ -18,72 +18,115 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
   final TextEditingController manufacturerController = TextEditingController();
   final TextEditingController modelController = TextEditingController();
 
-  File? rcPhoto;
-  File? licencePhoto;
+  GoogleMapController? mapController;
+  LatLng? _initialPosition;  // User's initial position
+  LatLng? _selectedDestination;  // Selected destination point
+  double? _distance;  // Distance from initial point to destination
 
-  Future<void> pickImage(ImageSource source, String type) async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: source);
+  @override
+  void initState() {
+    super.initState();
+    _getUserLocation();  // Fetch user location when screen is loaded
+  }
+
+  // Get user's current location
+  Future<void> _getUserLocation() async {
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     setState(() {
-      if (type == "RC") {
-        rcPhoto = File(image!.path);
-      } else {
-        licencePhoto = File(image!.path);
-      }
+      _initialPosition = LatLng(position.latitude, position.longitude);
     });
+  }
+
+  // Calculate distance between two LatLng points
+  void _calculateDistance() {
+    if (_initialPosition != null && _selectedDestination != null) {
+      double distanceInMeters = Geolocator.distanceBetween(
+        _initialPosition!.latitude,
+        _initialPosition!.longitude,
+        _selectedDestination!.latitude,
+        _selectedDestination!.longitude,
+      );
+      setState(() {
+        _distance = distanceInMeters / 1000;  // Convert to kilometers
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Vehicle Registration'),
+        title: Text('Vehicle Registration and Journey'),
         backgroundColor: Colors.blueAccent,
       ),
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              // Owner Name
+              // Form fields for vehicle and owner details
               _buildTextField('Owner Name', ownerNameController),
               SizedBox(height: 20),
-
-              // Vehicle Registration Number
               _buildTextField('Vehicle Registration No', vehicleRegNoController),
               SizedBox(height: 20),
-
-              // Licence Number
               _buildTextField('Licence No', licenceNoController),
               SizedBox(height: 20),
-
-              // Vehicle Type
               _buildTextField('Vehicle Type', vehicleTypeController),
               SizedBox(height: 20),
-
-              // Manufacturer
               _buildTextField('Manufacturer', manufacturerController),
               SizedBox(height: 20),
-
-              // Model
               _buildTextField('Model', modelController),
               SizedBox(height: 20),
 
-              // RC Photo Upload Section
-              _buildImageUploadSection('Upload RC Photo', rcPhoto, 'RC'),
+              // Google Maps Display
+              Container(
+                height: 300,
+                child: _initialPosition == null
+                    ? Center(child: CircularProgressIndicator())
+                    : GoogleMap(
+                  onMapCreated: (controller) {
+                    mapController = controller;
+                  },
+                  initialCameraPosition: CameraPosition(
+                    target: _initialPosition!,
+                    zoom: 14,
+                  ),
+                  onTap: (LatLng position) {
+                    setState(() {
+                      _selectedDestination = position;
+                    });
+                  },
+                  markers: _selectedDestination != null
+                      ? {
+                    Marker(
+                      markerId: MarkerId('destination'),
+                      position: _selectedDestination!,
+                      infoWindow: InfoWindow(title: 'Selected Destination'),
+                    )
+                  }
+                      : {},
+                ),
+              ),
               SizedBox(height: 20),
 
-              // Licence Photo Upload Section
-              _buildImageUploadSection('Upload Licence Photo', licencePhoto, 'Licence'),
-              SizedBox(height: 40),
+              // Distance Display
+              _distance != null
+                  ? Text(
+                'Distance: ${_distance!.toStringAsFixed(2)} km',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              )
+                  : Container(),
 
-              // Submit Button
+              // Start Journey Button
               ElevatedButton(
                 onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _submitForm();
+                  if (_selectedDestination != null) {
+                    _calculateDistance();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Please select a destination on the map')),
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -92,7 +135,7 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text('Submit', style: TextStyle(fontSize: 18)),
+                child: Text('Start Journey', style: TextStyle(fontSize: 18)),
               ),
             ],
           ),
@@ -101,7 +144,6 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
     );
   }
 
-  // Reusable method for building text fields
   Widget _buildTextField(String label, TextEditingController controller) {
     return TextFormField(
       controller: controller,
@@ -117,40 +159,6 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
         }
         return null;
       },
-    );
-  }
-
-  // Reusable method for image upload section
-  Widget _buildImageUploadSection(String label, File? imageFile, String type) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
-        SizedBox(height: 10),
-        imageFile == null
-            ? Text('No $label selected.')
-            : Image.file(imageFile, height: 100, width: 100, fit: BoxFit.cover),
-        SizedBox(height: 10),
-        ElevatedButton.icon(
-          onPressed: () => pickImage(ImageSource.gallery, type),
-          icon: Icon(Icons.photo),
-          label: Text('Upload from Gallery'),
-        ),
-        ElevatedButton.icon(
-          onPressed: () => pickImage(ImageSource.camera, type),
-          icon: Icon(Icons.camera_alt),
-          label: Text('Take a Photo'),
-        ),
-      ],
-    );
-  }
-
-  // Simulate form submission
-  void _submitForm() {
-    print('Form submitted');
-    // Here you can send form data to your backend
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Vehicle Registered Successfully')),
     );
   }
 }
