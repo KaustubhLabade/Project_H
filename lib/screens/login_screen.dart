@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:highwaypluss/widgets/custom_button.dart';
+
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -92,6 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(fontSize: 18),
                     ),
                   ),
+
                 ],
               ),
             ),

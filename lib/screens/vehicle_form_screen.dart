@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:highwaypluss/widgets/custom_button.dart';
+import 'package:highwaypluss/widgets/form_field.dart'; // Import the custom widgets
 
 class VehicleFormScreen extends StatefulWidget {
   @override
@@ -65,18 +67,77 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
           key: _formKey,
           child: Column(
             children: [
-              // Form fields for vehicle and owner details
-              _buildTextField('Owner Name', ownerNameController),
+              // Form fields for vehicle and owner details using CustomFormField
+              CustomFormField(
+                labelText: 'Owner Name',
+                controller: ownerNameController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter owner name';
+                  }
+                  return null;
+                },
+              ),
               SizedBox(height: 20),
-              _buildTextField('Vehicle Registration No', vehicleRegNoController),
+
+              CustomFormField(
+                labelText: 'Vehicle Registration No',
+                controller: vehicleRegNoController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter vehicle registration number';
+                  }
+                  return null;
+                },
+              ),
               SizedBox(height: 20),
-              _buildTextField('Licence No', licenceNoController),
+
+              CustomFormField(
+                labelText: 'Licence No',
+                controller: licenceNoController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter licence number';
+                  }
+                  return null;
+                },
+              ),
               SizedBox(height: 20),
-              _buildTextField('Vehicle Type', vehicleTypeController),
+
+              CustomFormField(
+                labelText: 'Vehicle Type',
+                controller: vehicleTypeController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter vehicle type';
+                  }
+                  return null;
+                },
+              ),
               SizedBox(height: 20),
-              _buildTextField('Manufacturer', manufacturerController),
+
+              CustomFormField(
+                labelText: 'Manufacturer',
+                controller: manufacturerController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter manufacturer name';
+                  }
+                  return null;
+                },
+              ),
               SizedBox(height: 20),
-              _buildTextField('Model', modelController),
+
+              CustomFormField(
+                labelText: 'Model',
+                controller: modelController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter model';
+                  }
+                  return null;
+                },
+              ),
               SizedBox(height: 20),
 
               // Google Maps Display
@@ -118,8 +179,10 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
               )
                   : Container(),
 
-              // Start Journey Button
-              ElevatedButton(
+              // Custom Start Journey Button
+              CustomButton(
+                text: 'Start Journey',
+                color: Colors.blueAccent,
                 onPressed: () {
                   if (_selectedDestination != null) {
                     _calculateDistance();
@@ -129,36 +192,11 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
                     );
                   }
                 },
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 100),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text('Start Journey', style: TextStyle(fontSize: 18)),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildTextField(String label, TextEditingController controller) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        filled: true,
-        fillColor: Colors.grey[200],
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter $label';
-        }
-        return null;
-      },
     );
   }
 }
