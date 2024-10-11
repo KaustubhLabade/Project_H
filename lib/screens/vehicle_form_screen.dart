@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:highwaypluss/widgets/custom_button.dart';
-import 'package:highwaypluss/widgets/form_field.dart'; // Import the custom widgets
+import 'package:highwaypluss/widgets/form_field.dart';  // Import the custom widgets
 
 class VehicleFormScreen extends StatefulWidget {
   @override
@@ -20,15 +22,19 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
   final TextEditingController manufacturerController = TextEditingController();
   final TextEditingController modelController = TextEditingController();
 
+  // Image variables for License and RC photos
+  File? licensePhoto;
+  File? rcPhoto;
+
   GoogleMapController? mapController;
-  LatLng? _initialPosition;  // User's initial position
-  LatLng? _selectedDestination;  // Selected destination point
-  double? _distance;  // Distance from initial point to destination
+  LatLng? _initialPosition;
+  LatLng? _selectedDestination;
+  double? _distance;
 
   @override
   void initState() {
     super.initState();
-    _getUserLocation();  // Fetch user location when screen is loaded
+    _getUserLocation();
   }
 
   // Get user's current location
@@ -37,6 +43,22 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
     setState(() {
       _initialPosition = LatLng(position.latitude, position.longitude);
     });
+  }
+
+  // Function to pick an image
+  Future<void> _pickImage(ImageSource source, String type) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: source);
+
+    if (image != null) {
+      setState(() {
+        if (type == 'License') {
+          licensePhoto = File(image.path);
+        } else if (type == 'RC') {
+          rcPhoto = File(image.path);
+        }
+      });
+    }
   }
 
   // Calculate distance between two LatLng points
@@ -137,6 +159,52 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
                   }
                   return null;
                 },
+              ),
+              SizedBox(height: 20),
+
+              // License Photo Upload Section
+              Text("Upload License Photo", style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 10),
+              licensePhoto == null
+                  ? Text("No license photo selected.")
+                  : Image.file(licensePhoto!, height: 100, width: 100),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => _pickImage(ImageSource.gallery, 'License'),
+                    icon: Icon(Icons.photo),
+                    label: Text("From Gallery"),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () => _pickImage(ImageSource.camera, 'License'),
+                    icon: Icon(Icons.camera),
+                    label: Text("Take Photo"),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+
+              // RC Photo Upload Section
+              Text("Upload RC Photo", style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 10),
+              rcPhoto == null
+                  ? Text("No RC photo selected.")
+                  : Image.file(rcPhoto!, height: 100, width: 100),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => _pickImage(ImageSource.gallery, 'RC'),
+                    icon: Icon(Icons.photo),
+                    label: Text("From Gallery"),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () => _pickImage(ImageSource.camera, 'RC'),
+                    icon: Icon(Icons.camera),
+                    label: Text("Take Photo"),
+                  ),
+                ],
               ),
               SizedBox(height: 20),
 

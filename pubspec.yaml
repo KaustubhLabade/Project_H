@@ -34,7 +34,9 @@ dependencies:
   google_maps_flutter: ^2.2.0  # Make sure to use the appropriate version for google_maps_flutter
   google_maps_flutter_web: ^0.5.8  # Update this to the latest compatible version# Latest stable version at the time
   geolocator: ^9.0.2
-
+  stripe_payment: ^1.1.4  # Stripe payment library for Flutter
+  http: ^0.13.3           # HTTP for making API calls to your backend
+  url_launcher: ^6.0.9
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

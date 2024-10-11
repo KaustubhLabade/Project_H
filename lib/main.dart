@@ -1,38 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:highwaypluss/screens/splash_screen.dart';
-import 'package:highwaypluss/screens/login_screen.dart';
-import 'package:highwaypluss/screens/vehicle_form_screen.dart';
-import 'package:highwaypluss/screens/success_screen.dart';
-import 'package:highwaypluss/screens/profile_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/otp_screen.dart';
+import 'screens/vehicle_form_screen.dart';
+import 'screens/home_screen.dart';  // Import all relevant screens
 
 void main() {
   runApp(MyApp());
 }
 
-// Root widget of the app
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'HighwayPlus',  // Title of your app
+      title: 'Highway Plus App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/',  // Define the initial route
+      initialRoute: '/',
       routes: {
-        '/': (context) => SplashScreen(),  // Splash screen as the initial route
-        '/login': (context) => LoginScreen(),  // Login screen route
-        '/vehicleForm': (context) => VehicleFormScreen(),  // Vehicle form route
-        '/success': (context) => SuccessScreen(),  // Success screen route
-        '/profile': (context) => ProfileScreen(
-          ownerName: 'John Doe',  // Example data
-          vehicleRegNo: 'MH12AB1234',  // Example data
-          licenceNo: 'DL1234567890',  // Example data
-          vehicleType: 'Car',  // Example data
-          manufacturer: 'Toyota',  // Example data
-          model: 'Corolla',  // Example data
-        ),  // Profile screen route
+        '/': (context) => LoginScreen(),
+        '/otpScreen': (context) => OtpScreen(),
+        '/vehicleFormScreen': (context) => VehicleFormScreen(),  // Register Vehicle Form route
+        '/homeScreen': (context) => HomeScreen(),  // Register Home Screen route
       },
     );
   }

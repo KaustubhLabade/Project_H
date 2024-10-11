@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:highwaypluss/widgets/custom_button.dart';
-
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -8,94 +6,100 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  TextEditingController _phoneController = TextEditingController();
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Background image
+          // Background Image
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/background.jpg'),  // Use background image
+                image: AssetImage('assets/images/background.jpg'),
                 fit: BoxFit.cover,
               ),
             ),
           ),
 
-          // Main content with logo and form
+          // Foreground content (Login Form)
           Center(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Logo
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundImage: AssetImage('assets/images/logo.png'),  // Change to logo.png
-                  ),
-                  SizedBox(height: 40),
-
-                  // Title
-                  Text(
-                    'Login to Continue',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,  // Text color to contrast with background
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Logo
+                    CircleAvatar(
+                      radius: 60,
+                      backgroundImage: AssetImage('assets/images/logo.png'),  // Ensure you have the logo
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 20),
+                    SizedBox(height: 40),
 
-                  // Mobile Number Input
-                  TextFormField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      labelText: 'Mobile Number',
-                      labelStyle: TextStyle(color: Colors.white),  // White text for label
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
+                    // Title
+                    Text(
+                      'Login to Continue',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,  // Text color to contrast with background
                       ),
-                      filled: true,
-                      fillColor: Colors.white.withOpacity(0.8),  // Slight transparency
-                      prefixIcon: Icon(Icons.phone, color: Colors.blue),
+                      textAlign: TextAlign.center,
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty || value.length != 10) {
-                        return 'Enter a valid mobile number';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20),
+                    SizedBox(height: 20),
 
-                  // Get OTP Button
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _getOtp();
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                    // Mobile Number Input Field
+                    TextFormField(
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        labelText: 'Mobile Number',
+                        labelStyle: TextStyle(color: Colors.white),  // White label text
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.phone, color: Colors.white),
+                        filled: true,
+                        fillColor: Colors.black.withOpacity(0.5),  // Add opacity to input field
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a valid phone number';
+                        }
+                        if (value.length != 10) {
+                          return 'Phone number must be 10 digits';
+                        }
+                        return null;
+                      },
                     ),
-                    child: Text(
-                      'Get OTP',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
+                    SizedBox(height: 20),
 
-                ],
+                    // Get OTP Button
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _getOtp();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text('Get OTP', style: TextStyle(fontSize: 18)),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -106,9 +110,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _getOtp() {
     String phoneNumber = _phoneController.text.trim();
-    print('Requesting OTP for phone number: $phoneNumber');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('OTP requested for $phoneNumber')),
-    );
+    if (phoneNumber.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter a valid phone number')),
+      );
+      return;
+    }
+
+    // Simulate OTP request and navigate
+    Navigator.pushNamed(context, '/otpScreen', arguments: phoneNumber);
   }
 }

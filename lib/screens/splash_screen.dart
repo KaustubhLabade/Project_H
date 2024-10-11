@@ -13,7 +13,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     // Navigate to the LoginScreen after a delay
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(Duration(seconds: 5), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginScreen()), // Make sure LoginScreen is defined
@@ -38,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
             SizedBox(height: 20),
             // Your app's name or slogan
             Text(
-              'Vehicle Registration App',
+              'H+',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
