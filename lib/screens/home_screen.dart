@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'profile_screen.dart';  // Import Profile Screen for navigation
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -14,7 +15,7 @@ class HomeScreen extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/background.jpg'), // Ensure the background image exists
+                image: AssetImage('assets/images/background.jpg'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -26,7 +27,6 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Welcome message
                 Text(
                   'Welcome to Highway Plus!',
                   style: TextStyle(
@@ -48,7 +48,6 @@ class HomeScreen extends StatelessWidget {
                         icon: Icons.directions_car,
                         label: 'My Vehicles',
                         onTap: () {
-                          // Handle tap event (navigate to My Vehicles screen)
                           Navigator.pushNamed(context, '/myVehicles');
                         },
                       ),
@@ -56,7 +55,6 @@ class HomeScreen extends StatelessWidget {
                         icon: Icons.history,
                         label: 'Journey History',
                         onTap: () {
-                          // Handle tap event (navigate to Journey History screen)
                           Navigator.pushNamed(context, '/journeyHistory');
                         },
                       ),
@@ -64,7 +62,6 @@ class HomeScreen extends StatelessWidget {
                         icon: Icons.location_on,
                         label: 'Nearby Services',
                         onTap: () {
-                          // Handle tap event (navigate to Nearby Services screen)
                           Navigator.pushNamed(context, '/nearbyServices');
                         },
                       ),
@@ -72,23 +69,20 @@ class HomeScreen extends StatelessWidget {
                         icon: Icons.person,
                         label: 'Profile',
                         onTap: () {
-                          // Handle tap event (navigate to Profile screen)
-                          Navigator.pushNamed(context, '/profile');
+                          Navigator.pushNamed(context, '/profileScreen');
                         },
                       ),
                       _buildNavigationCard(
                         icon: Icons.settings,
                         label: 'Settings',
                         onTap: () {
-                          // Handle tap event (navigate to Settings screen)
-                          Navigator.pushNamed(context, '/settings');
+                          Navigator.pushNamed(context, '/settings');  // Navigate to Settings Screen
                         },
                       ),
                       _buildNavigationCard(
                         icon: Icons.exit_to_app,
                         label: 'Logout',
                         onTap: () {
-                          // Handle logout
                           Navigator.pushReplacementNamed(context, '/');
                         },
                       ),
@@ -112,7 +106,7 @@ class HomeScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(),
       child: Card(
-        color: Colors.black.withOpacity(0.5),  // Add transparency to match the background
+        color: Colors.black.withOpacity(0.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 5,
         child: Column(

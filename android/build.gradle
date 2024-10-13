@@ -1,7 +1,7 @@
 // Top-level build.gradle file at C:/HighwayPluss/highwaypluss/android/build.gradle
 
 buildscript {
-    ext.kotlin_version = '1.5.31'
+    ext.kotlin_version = '1.8.0'
     repositories {
         google()
         mavenCentral()

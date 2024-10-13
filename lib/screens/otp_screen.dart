@@ -15,8 +15,10 @@ class _OtpScreenState extends State<OtpScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('OTP Verification'),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
+      extendBodyBehindAppBar: true, // To allow the background image to extend behind the AppBar
       body: Stack(
         children: [
           // Background Image
@@ -37,6 +39,18 @@ class _OtpScreenState extends State<OtpScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Title
+                  Text(
+                    'OTP Verification',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 10),
+
                   // OTP Information
                   Text(
                     phoneNumber != null
@@ -44,30 +58,35 @@ class _OtpScreenState extends State<OtpScreen> {
                         : 'No phone number provided!',
                     style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,  // White text for contrast
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white.withOpacity(0.9),
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
 
                   // OTP Input Field
-                  TextField(
-                    controller: otpController,
-                    keyboardType: TextInputType.number,
-                    maxLength: 6,  // Assuming OTP is 6 digits
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: 'Enter OTP',
-                      labelStyle: TextStyle(color: Colors.white),  // White label text
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.lock, color: Colors.white),
-                      filled: true,
-                      fillColor: Colors.black.withOpacity(0.5),  // Slight transparency
-                      counterText: '',  // Hide the counter for maxLength
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: TextField(
+                      controller: otpController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6, // Assuming OTP is 6 digits
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                      decoration: InputDecoration(
+                        counterText: '', // Hide the counter for maxLength
+                        labelText: 'Enter OTP',
+                        labelStyle: TextStyle(color: Colors.white),
+                        border: InputBorder.none,
+                        prefixIcon: Icon(Icons.lock, color: Colors.white),
+                      ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
 
                   // Verify OTP Button
                   ElevatedButton(
@@ -81,12 +100,30 @@ class _OtpScreenState extends State<OtpScreen> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
                       padding: EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: Text('Verify OTP', style: TextStyle(fontSize: 18)),
+                    child: Text(
+                      'Verify OTP',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+
+                  // Resend OTP Option
+                  TextButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('OTP Resent!')),
+                      );
+                    },
+                    child: Text(
+                      'Resend OTP',
+                      style: TextStyle(fontSize: 16, color: Colors.white.withOpacity(0.8)),
+                    ),
                   ),
                 ],
               ),
@@ -99,7 +136,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
   bool _verifyOtp(String otp) {
     // Simulate OTP verification (in a real app, you would call an API)
-    return otp == "123456";  // Replace with your actual OTP validation logic
+    return otp == "123456"; // Replace with your actual OTP validation logic
   }
 
   void _checkVehicleRegistration() {
@@ -117,6 +154,6 @@ class _OtpScreenState extends State<OtpScreen> {
 
   bool _isVehicleRegistered() {
     // Simulate a check (in a real app, you'd fetch this from a backend or database)
-    return false;  // For testing purposes, vehicle is not registered
+    return false; // For testing purposes, vehicle is not registered
   }
 }

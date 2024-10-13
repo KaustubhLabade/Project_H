@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:highwaypluss/widgets/custom_button.dart';
 import 'package:highwaypluss/widgets/form_field.dart';  // Import the custom widgets
+import 'map_screen.dart';  // Import the map screen for selecting destination
 
 class VehicleFormScreen extends StatefulWidget {
   @override
@@ -26,24 +27,7 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
   File? licensePhoto;
   File? rcPhoto;
 
-  GoogleMapController? mapController;
-  LatLng? _initialPosition;
   LatLng? _selectedDestination;
-  double? _distance;
-
-  @override
-  void initState() {
-    super.initState();
-    _getUserLocation();
-  }
-
-  // Get user's current location
-  Future<void> _getUserLocation() async {
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    setState(() {
-      _initialPosition = LatLng(position.latitude, position.longitude);
-    });
-  }
 
   // Function to pick an image
   Future<void> _pickImage(ImageSource source, String type) async {
@@ -61,209 +45,261 @@ class _VehicleFormScreenState extends State<VehicleFormScreen> {
     }
   }
 
-  // Calculate distance between two LatLng points
-  void _calculateDistance() {
-    if (_initialPosition != null && _selectedDestination != null) {
-      double distanceInMeters = Geolocator.distanceBetween(
-        _initialPosition!.latitude,
-        _initialPosition!.longitude,
-        _selectedDestination!.latitude,
-        _selectedDestination!.longitude,
-      );
-      setState(() {
-        _distance = distanceInMeters / 1000;  // Convert to kilometers
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Vehicle Registration and Journey'),
+        title: Text('Vehicle Registration'),
         backgroundColor: Colors.blueAccent,
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              // Form fields for vehicle and owner details using CustomFormField
-              CustomFormField(
-                labelText: 'Owner Name',
-                controller: ownerNameController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter owner name';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
+      body: Container(
+        color: Colors.black, // Set background color to black
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                _buildSectionTitle('Owner and Vehicle Details'),
+                SizedBox(height: 10),
 
-              CustomFormField(
-                labelText: 'Vehicle Registration No',
-                controller: vehicleRegNoController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter vehicle registration number';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-
-              CustomFormField(
-                labelText: 'Licence No',
-                controller: licenceNoController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter licence number';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-
-              CustomFormField(
-                labelText: 'Vehicle Type',
-                controller: vehicleTypeController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter vehicle type';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-
-              CustomFormField(
-                labelText: 'Manufacturer',
-                controller: manufacturerController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter manufacturer name';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-
-              CustomFormField(
-                labelText: 'Model',
-                controller: modelController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter model';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-
-              // License Photo Upload Section
-              Text("Upload License Photo", style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 10),
-              licensePhoto == null
-                  ? Text("No license photo selected.")
-                  : Image.file(licensePhoto!, height: 100, width: 100),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.gallery, 'License'),
-                    icon: Icon(Icons.photo),
-                    label: Text("From Gallery"),
+                // Owner Name Field
+                _buildCard(
+                  CustomFormField(
+                    labelText: 'Owner Name',
+                    controller: ownerNameController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter owner name';
+                      }
+                      return null;
+                    },
                   ),
-                  ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.camera, 'License'),
-                    icon: Icon(Icons.camera),
-                    label: Text("Take Photo"),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-
-              // RC Photo Upload Section
-              Text("Upload RC Photo", style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 10),
-              rcPhoto == null
-                  ? Text("No RC photo selected.")
-                  : Image.file(rcPhoto!, height: 100, width: 100),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.gallery, 'RC'),
-                    icon: Icon(Icons.photo),
-                    label: Text("From Gallery"),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.camera, 'RC'),
-                    icon: Icon(Icons.camera),
-                    label: Text("Take Photo"),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-
-              // Google Maps Display
-              Container(
-                height: 300,
-                child: _initialPosition == null
-                    ? Center(child: CircularProgressIndicator())
-                    : GoogleMap(
-                  onMapCreated: (controller) {
-                    mapController = controller;
-                  },
-                  initialCameraPosition: CameraPosition(
-                    target: _initialPosition!,
-                    zoom: 14,
-                  ),
-                  onTap: (LatLng position) {
-                    setState(() {
-                      _selectedDestination = position;
-                    });
-                  },
-                  markers: _selectedDestination != null
-                      ? {
-                    Marker(
-                      markerId: MarkerId('destination'),
-                      position: _selectedDestination!,
-                      infoWindow: InfoWindow(title: 'Selected Destination'),
-                    )
-                  }
-                      : {},
                 ),
-              ),
-              SizedBox(height: 20),
+                SizedBox(height: 20),
 
-              // Distance Display
-              _distance != null
-                  ? Text(
-                'Distance: ${_distance!.toStringAsFixed(2)} km',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              )
-                  : Container(),
+                // Vehicle Registration Number Field
+                _buildCard(
+                  CustomFormField(
+                    labelText: 'Vehicle Registration No',
+                    controller: vehicleRegNoController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter vehicle registration number';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                SizedBox(height: 20),
 
-              // Custom Start Journey Button
-              CustomButton(
-                text: 'Start Journey',
-                color: Colors.blueAccent,
-                onPressed: () {
-                  if (_selectedDestination != null) {
-                    _calculateDistance();
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Please select a destination on the map')),
+                // License Number Field
+                _buildCard(
+                  CustomFormField(
+                    labelText: 'Licence No',
+                    controller: licenceNoController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter licence number';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                SizedBox(height: 20),
+
+                // Vehicle Type Field
+                _buildCard(
+                  CustomFormField(
+                    labelText: 'Vehicle Type',
+                    controller: vehicleTypeController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter vehicle type';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                SizedBox(height: 20),
+
+                // Manufacturer Field
+                _buildCard(
+                  CustomFormField(
+                    labelText: 'Manufacturer',
+                    controller: manufacturerController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter manufacturer name';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                SizedBox(height: 20),
+
+                // Model Field
+                _buildCard(
+                  CustomFormField(
+                    labelText: 'Model',
+                    controller: modelController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter model';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                SizedBox(height: 20),
+
+                _buildSectionTitle('Upload Photos'),
+                SizedBox(height: 10),
+
+                // License Photo Upload Section
+                _buildCard(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Upload License Photo", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                      SizedBox(height: 10),
+                      licensePhoto == null
+                          ? Text("No license photo selected.", style: TextStyle(color: Colors.white))
+                          : Image.file(licensePhoto!, height: 100, width: 100),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () => _pickImage(ImageSource.gallery, 'License'),
+                            icon: Icon(Icons.photo),
+                            label: Text("From Gallery"),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () => _pickImage(ImageSource.camera, 'License'),
+                            icon: Icon(Icons.camera),
+                            label: Text("Take Photo"),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+
+                // RC Photo Upload Section
+                _buildCard(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Upload RC Photo", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                      SizedBox(height: 10),
+                      rcPhoto == null
+                          ? Text("No RC photo selected.", style: TextStyle(color: Colors.white))
+                          : Image.file(rcPhoto!, height: 100, width: 100),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () => _pickImage(ImageSource.gallery, 'RC'),
+                            icon: Icon(Icons.photo),
+                            label: Text("From Gallery"),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () => _pickImage(ImageSource.camera, 'RC'),
+                            icon: Icon(Icons.camera),
+                            label: Text("Take Photo"),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+
+                _buildSectionTitle('Journey Destination'),
+                SizedBox(height: 10),
+
+                // Select Destination Button
+                ElevatedButton(
+                  onPressed: () async {
+                    // Navigate to MapScreen to select a destination
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MapScreen()),
                     );
-                  }
-                },
-              ),
-            ],
+                    if (result != null) {
+                      setState(() {
+                        _selectedDestination = result;
+                      });
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(
+                    _selectedDestination == null
+                        ? 'Select Destination'
+                        : 'Destination Selected',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+                SizedBox(height: 20),
+
+                // Show selected destination if available
+                _selectedDestination != null
+                    ? Text(
+                  'Selected Destination: (${_selectedDestination!.latitude}, ${_selectedDestination!.longitude})',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                )
+                    : Container(),
+
+                // Custom Submit Button
+                CustomButton(
+                  text: 'Submit',
+                  color: Colors.blueAccent,
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      // Handle form submission
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Vehicle registered successfully!')),
+                      );
+
+                      // Navigate to Home Screen after submission
+                      Navigator.pushReplacementNamed(context, '/homeScreen');
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  // Helper method to build section titles
+  Widget _buildSectionTitle(String title) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        title,
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+      ),
+    );
+  }
+
+  // Helper method to build a card widget for form fields and photo upload
+  Widget _buildCard(Widget child) {
+    return Card(
+      color: Colors.grey[850],  // Card background dark color
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 5,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: child,
       ),
     );
   }
