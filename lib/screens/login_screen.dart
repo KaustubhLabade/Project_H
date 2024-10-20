@@ -24,17 +24,17 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       vsync: this,
     );
 
-    // Fade in animation for the logo
+    // Fade-in animation for the logo
     _fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeIn),
     );
 
-    // Slide up animation for the login form
+    // Slide-up animation for the login form
     _slideAnimation = Tween<Offset>(begin: Offset(0, 1), end: Offset(0, 0)).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    // Start the animation
+    // Start the animations
     _controller.forward();
   }
 
@@ -54,13 +54,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/background.jpg'),
+                image: AssetImage('assets/images/background.jpg'),  // Background image path
                 fit: BoxFit.cover,
               ),
             ),
           ),
 
-          // Subtle gradient overlay for better text readability
+          // Gradient overlay for better text readability
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -86,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       opacity: _fadeInAnimation,
                       child: CircleAvatar(
                         radius: 60,
-                        backgroundImage: AssetImage('assets/images/logo.png'), // Ensure you have the logo
+                        backgroundImage: AssetImage('assets/images/logo.png'),  // Ensure the logo image is placed in the correct assets path
                       ),
                     ),
                     SizedBox(height: 40),
@@ -99,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white, // Text color to contrast with background
+                          color: Colors.white,  // White text color to contrast with the background
                           shadows: [
                             Shadow(
                               offset: Offset(2, 2),
@@ -131,11 +131,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
                             labelText: 'Mobile Number',
-                            labelStyle: TextStyle(color: Colors.white), // White label text
+                            labelStyle: TextStyle(color: Colors.white),  // White label text
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.phone, color: Colors.white),
                             filled: true,
-                            fillColor: Colors.black.withOpacity(0.5), // Add opacity to input field
+                            fillColor: Colors.black.withOpacity(0.5),  // Add opacity to the input field
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -202,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       return;
     }
 
-    // Simulate OTP request and navigate
+    // Simulate OTP request and navigate to OTP screen
     Navigator.pushNamed(context, '/otpScreen', arguments: phoneNumber);
   }
 }

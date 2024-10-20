@@ -37,7 +37,8 @@ dependencies:
   stripe_payment: ^1.1.4  # Stripe payment library for Flutter
   http: ^0.13.3           # HTTP for making API calls to your backend
   url_launcher: ^6.0.9
-
+  provider: ^6.0.3
+  razorpay_flutter: ^1.2.7
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   # Use with the CupertinoIcons class for iOS style icons.

@@ -35,7 +35,7 @@ class SuccessScreen extends StatelessWidget {
 
               // Additional Information or Message
               Text(
-                'Your vehicle has been successfully registered. You can now go back to the home screen or register another vehicle.',
+                'Your vehicle has been successfully registered. You can now go back to the home screen',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey[700],
