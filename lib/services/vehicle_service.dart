@@ -2,9 +2,11 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class VehicleService {
-  static const String _baseUrl = 'https://projecthighwayplus-1.onrender.com'; // Updated backend URL
+  static const String _baseUrl = 'https://projecthighwayplus-1.onrender.com'; // Backend base URL
 
   // Method to add a new vehicle
+  // API Endpoint: POST /vehicle-owner/add-vehicle-info
+  // This endpoint adds new vehicle information.
   Future<bool> addVehicle({
     required String ownerName,
     required String vehicleRegNo,
@@ -15,7 +17,7 @@ class VehicleService {
     required String licensePhoto,
     required String rcPhoto,
   }) async {
-    final url = Uri.parse('$_baseUrl/vehicles');
+    final url = Uri.parse('$_baseUrl/vehicle-owner/add-vehicle-info');
     try {
       final response = await http.post(
         url,
@@ -44,9 +46,11 @@ class VehicleService {
     }
   }
 
-  // Method to fetch a list of vehicles for a specific phone number
+  // Method to fetch a list of vehicles based on phone number
+  // API Endpoint: GET /vehicle-owner/show-vehicle/:phone
+  // This endpoint displays vehicles based on the phone number provided.
   Future<List<Map<String, dynamic>>?> fetchVehicles(String phoneNumber) async {
-    final url = Uri.parse('$_baseUrl/vehicle-owner/show-vehicles/$phoneNumber');
+    final url = Uri.parse('$_baseUrl/vehicle-owner/show-vehicle/$phoneNumber');
     try {
       final response = await http.get(url);
 
@@ -63,7 +67,9 @@ class VehicleService {
     }
   }
 
-  // Method to update a vehicle's information
+  // Method to update a vehicle's information using vehicle ID
+  // API Endpoint: PUT /vehicle-owner/vehicle-update/:vehicleId
+  // This endpoint updates the information of a vehicle.
   Future<bool> updateVehicle({
     required String vehicleId,
     required String ownerName,
@@ -73,7 +79,7 @@ class VehicleService {
     required String manufacturer,
     required String model,
   }) async {
-    final url = Uri.parse('$_baseUrl/vehicles/$vehicleId');
+    final url = Uri.parse('$_baseUrl/vehicle-owner/vehicle-update/$vehicleId');
     try {
       final response = await http.put(
         url,
@@ -100,9 +106,11 @@ class VehicleService {
     }
   }
 
-  // Method to delete a vehicle
+  // Method to delete a vehicle based on its ID
+  // API Endpoint: DELETE /vehicle-owner/vehicle-delete/:vehicleId
+  // This endpoint deletes a vehicle based on its ID.
   Future<bool> deleteVehicle(String vehicleId) async {
-    final url = Uri.parse('$_baseUrl/vehicles/$vehicleId');
+    final url = Uri.parse('$_baseUrl/vehicle-owner/vehicle-delete/$vehicleId');
     try {
       final response = await http.delete(url);
 
@@ -118,9 +126,11 @@ class VehicleService {
     }
   }
 
-  // Method to fetch details of a single vehicle
+  // Method to fetch details of a single vehicle using its ID
+  // API Endpoint: GET /vehicle-owner/show-vehicle/:vehicleId
+  // This endpoint fetches the details of a specific vehicle.
   Future<Map<String, dynamic>?> fetchVehicleDetails(String vehicleId) async {
-    final url = Uri.parse('$_baseUrl/vehicles/$vehicleId');
+    final url = Uri.parse('$_baseUrl/vehicle-owner/show-vehicle/$vehicleId');
     try {
       final response = await http.get(url);
 

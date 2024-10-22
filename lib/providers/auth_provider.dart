@@ -3,132 +3,75 @@ import '../services/auth_service.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
-
-  // State variables
   bool _isLoading = false;
-  bool _isAuthenticated = false;
-  String? _authToken;
-  String? _phoneNumber;
   String? _errorMessage;
 
-  // Getters
+  // Getter for loading state
   bool get isLoading => _isLoading;
-  bool get isAuthenticated => _isAuthenticated;
-  String? get authToken => _authToken;
-  String? get phoneNumber => _phoneNumber;
+
+  // Getter for error message
   String? get errorMessage => _errorMessage;
 
   // Method to send OTP
-  Future<bool> sendOtp(String phoneNumber) async {
-    _setLoading(true);
-    _clearError();
+  Future<void> sendOtp(String phoneNumber) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
 
     try {
-      bool result = await _authService.sendOtp(phoneNumber);
-      if (result) {
-        _phoneNumber = phoneNumber;
-        notifyListeners();
-        return true;
-      } else {
-        _setError('Failed to send OTP. Please try again.');
-        return false;
+      bool success = await _authService.sendOtp(phoneNumber);
+      if (!success) {
+        _errorMessage = 'Failed to send OTP.';
       }
     } catch (e) {
-      _setError('Error while sending OTP: $e');
-      return false;
+      _errorMessage = 'Error while sending OTP: $e';
     } finally {
-      _setLoading(false);
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
   // Method to verify OTP
-  Future<bool> verifyOtp(String otp) async {
-    if (_phoneNumber == null) {
-      _setError('Phone number is not set.');
-      return false;
-    }
-
-    _setLoading(true);
-    _clearError();
-
-    try {
-      bool result = await _authService.verifyOtp(_phoneNumber!, otp);
-      if (result) {
-        _isAuthenticated = true;
-        notifyListeners();
-        return true;
-      } else {
-        _setError('Invalid OTP. Please check and try again.');
-        return false;
-      }
-    } catch (e) {
-      _setError('Error while verifying OTP: $e');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  // Method to register a user (if needed)
-  Future<bool> registerUser(String name) async {
-    if (_phoneNumber == null) {
-      _setError('Phone number is not set.');
-      return false;
-    }
-
-    _setLoading(true);
-    _clearError();
-
-    try {
-      bool result = await _authService.registerUser(_phoneNumber!, name);
-      if (result) {
-        notifyListeners();
-        return true;
-      } else {
-        _setError('Failed to register user. Please try again.');
-        return false;
-      }
-    } catch (e) {
-      _setError('Error while registering user: $e');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  // Method to log out user
-  Future<void> logout(BuildContext context) async {
-    _setLoading(true);
-    _clearError();
-
-    try {
-      await _authService.logout(context);
-      _isAuthenticated = false;
-      _authToken = null;
-      _phoneNumber = null;
-      notifyListeners();
-    } catch (e) {
-      _setError('Error while logging out: $e');
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  // Method to clear error message
-  void _clearError() {
+  Future<void> verifyOtp(String phoneNumber, String otp) async {
+    _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+
+    try {
+      bool success = await _authService.verifyOtp(phoneNumber, otp);
+      if (!success) {
+        _errorMessage = 'OTP verification failed.';
+      }
+    } catch (e) {
+      _errorMessage = 'Error while verifying OTP: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
-  // Private method to set loading state
-  void _setLoading(bool value) {
-    _isLoading = value;
+  // Method to register a user
+  Future<void> registerUser(String phoneNumber, String name, String idDetails) async {
+    _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
+
+    try {
+      bool success = await _authService.registerUser(phoneNumber, name, idDetails);
+      if (!success) {
+        _errorMessage = 'Failed to register user.';
+      }
+    } catch (e) {
+      _errorMessage = 'Error while registering user: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
-  // Private method to set error message
-  void _setError(String message) {
-    _errorMessage = message;
+  // Method to log out the user
+  Future<void> logout(BuildContext context) async {
+    await _authService.logout(context);
     notifyListeners();
   }
 }

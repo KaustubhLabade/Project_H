@@ -3,17 +3,15 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class AuthService {
-  static const String _baseUrl = 'https://your-backend-api.com/api'; // Replace with your backend URL
+  static const String _baseUrl = 'https://projecthighwayplus-1.onrender.com'; // Backend base URL
 
   // Method to send OTP to the given phone number
+  // API Endpoint: GET /authenticate/request-otp?phone=PHONE_NUMBER
+  // This endpoint sends an OTP to the user's phone number.
   Future<bool> sendOtp(String phoneNumber) async {
-    final url = Uri.parse('$_baseUrl/send-otp');
+    final url = Uri.parse('$_baseUrl/authenticate/request-otp?phone=$phoneNumber');
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'phoneNumber': phoneNumber}),
-      );
+      final response = await http.get(url);
 
       if (response.statusCode == 200) {
         return true; // OTP sent successfully
@@ -28,14 +26,12 @@ class AuthService {
   }
 
   // Method to verify OTP
+  // API Endpoint: GET /authenticate/verify-otp?phone=PHONE_NUMBER&otp=OTP
+  // This endpoint verifies the OTP sent to the user's phone number.
   Future<bool> verifyOtp(String phoneNumber, String otp) async {
-    final url = Uri.parse('$_baseUrl/verify-otp');
+    final url = Uri.parse('$_baseUrl/authenticate/verify-otp?phone=$phoneNumber&otp=$otp');
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'phoneNumber': phoneNumber, 'otp': otp}),
-      );
+      final response = await http.get(url);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -52,17 +48,43 @@ class AuthService {
     }
   }
 
-  // Method to register a new user (if needed)
-  Future<bool> registerUser(String phoneNumber, String name) async {
-    final url = Uri.parse('$_baseUrl/register');
+  // Method to resend OTP
+  // API Endpoint: GET /authenticate/resend-otp?phone=PHONE_NUMBER
+  // This endpoint resends the OTP to the user's phone number.
+  Future<bool> resendOtp(String phoneNumber) async {
+    final url = Uri.parse('$_baseUrl/authenticate/resend-otp?phone=$phoneNumber');
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        return true; // OTP resent successfully
+      } else {
+        print('Failed to resend OTP: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error while resending OTP: $e');
+      return false;
+    }
+  }
+
+  // Method to register a new user
+  // API Endpoint: POST /personal-info/register
+  // This endpoint registers the user's personal information including phone, name, and ID details.
+  Future<bool> registerUser(String phoneNumber, String name, String idDetails) async {
+    final url = Uri.parse('$_baseUrl/personal-info/register');
     try {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'phoneNumber': phoneNumber, 'name': name}),
+        body: jsonEncode({
+          'phone': phoneNumber,
+          'name': name,
+          'idDetails': idDetails,
+        }),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return true; // User registered successfully
       } else {
         print('Failed to register user: ${response.body}');

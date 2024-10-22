@@ -3,38 +3,42 @@ import '../services/vehicle_service.dart';
 
 class VehicleProvider with ChangeNotifier {
   final VehicleService _vehicleService = VehicleService();
-
-  // State variables
+  List<Map<String, dynamic>> _vehicles = [];
   bool _isLoading = false;
   String? _errorMessage;
-  List<Map<String, dynamic>> _vehicles = [];
 
-  bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
+  // Getter for the list of vehicles
   List<Map<String, dynamic>> get vehicles => _vehicles;
 
-  // Method to fetch all vehicles without userId
-  Future<void> fetchVehicles() async {
-    _setLoading(true);
-    _clearError();
+  // Getter for loading state
+  bool get isLoading => _isLoading;
+
+  // Getter for error message
+  String? get errorMessage => _errorMessage;
+
+  // Fetch all vehicles from the service
+  Future<void> fetchVehicles(String phoneNumber) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
 
     try {
-      List<Map<String, dynamic>>? fetchedVehicles = await _vehicleService.fetchVehicles(AutofillHints.username);
+      final fetchedVehicles = await _vehicleService.fetchVehicles(phoneNumber);
       if (fetchedVehicles != null) {
         _vehicles = fetchedVehicles;
-        notifyListeners();
       } else {
-        _setError('Failed to fetch vehicles.');
+        _errorMessage = 'Failed to fetch vehicles.';
       }
     } catch (e) {
-      _setError('Error while fetching vehicles: $e');
+      _errorMessage = 'Error while fetching vehicles: $e';
     } finally {
-      _setLoading(false);
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  // Method to add a new vehicle
-  Future<bool> addVehicle({
+  // Add a new vehicle
+  Future<void> addVehicle({
     required String ownerName,
     required String vehicleRegNo,
     required String licenceNo,
@@ -44,11 +48,12 @@ class VehicleProvider with ChangeNotifier {
     required String licensePhoto,
     required String rcPhoto,
   }) async {
-    _setLoading(true);
-    _clearError();
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
 
     try {
-      bool result = await _vehicleService.addVehicle(
+      bool success = await _vehicleService.addVehicle(
         ownerName: ownerName,
         vehicleRegNo: vehicleRegNo,
         licenceNo: licenceNo,
@@ -59,23 +64,22 @@ class VehicleProvider with ChangeNotifier {
         rcPhoto: rcPhoto,
       );
 
-      if (result) {
-        await fetchVehicles(); // Fetch the updated list of vehicles
-        return true;
+      if (success) {
+        // Fetch vehicles again to update the list
+        await fetchVehicles(ownerName);
       } else {
-        _setError('Failed to add vehicle. Please try again.');
-        return false;
+        _errorMessage = 'Failed to add the vehicle.';
       }
     } catch (e) {
-      _setError('Error while adding vehicle: $e');
-      return false;
+      _errorMessage = 'Error while adding vehicle: $e';
     } finally {
-      _setLoading(false);
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  // Method to update a vehicle's information
-  Future<bool> updateVehicle({
+  // Update an existing vehicle
+  Future<void> updateVehicle({
     required String vehicleId,
     required String ownerName,
     required String vehicleRegNo,
@@ -84,11 +88,12 @@ class VehicleProvider with ChangeNotifier {
     required String manufacturer,
     required String model,
   }) async {
-    _setLoading(true);
-    _clearError();
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
 
     try {
-      bool result = await _vehicleService.updateVehicle(
+      bool success = await _vehicleService.updateVehicle(
         vehicleId: vehicleId,
         ownerName: ownerName,
         vehicleRegNo: vehicleRegNo,
@@ -98,58 +103,40 @@ class VehicleProvider with ChangeNotifier {
         model: model,
       );
 
-      if (result) {
-        await fetchVehicles(); // Fetch the updated list of vehicles
-        return true;
+      if (success) {
+        // Fetch vehicles again to reflect the update
+        await fetchVehicles(ownerName);
       } else {
-        _setError('Failed to update vehicle.');
-        return false;
+        _errorMessage = 'Failed to update the vehicle.';
       }
     } catch (e) {
-      _setError('Error while updating vehicle: $e');
-      return false;
+      _errorMessage = 'Error while updating vehicle: $e';
     } finally {
-      _setLoading(false);
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  // Method to delete a vehicle
-  Future<bool> deleteVehicle(String vehicleId) async {
-    _setLoading(true);
-    _clearError();
-
-    try {
-      bool result = await _vehicleService.deleteVehicle(vehicleId);
-      if (result) {
-        await fetchVehicles(); // Fetch the updated list of vehicles
-        return true;
-      } else {
-        _setError('Failed to delete vehicle.');
-        return false;
-      }
-    } catch (e) {
-      _setError('Error while deleting vehicle: $e');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  // Private method to set loading state
-  void _setLoading(bool value) {
-    _isLoading = value;
-    notifyListeners();
-  }
-
-  // Private method to set error message
-  void _setError(String message) {
-    _errorMessage = message;
-    notifyListeners();
-  }
-
-  // Method to clear error message
-  void _clearError() {
+  // Delete a vehicle
+  Future<void> deleteVehicle(String vehicleId, String ownerName) async {
+    _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+
+    try {
+      bool success = await _vehicleService.deleteVehicle(vehicleId);
+
+      if (success) {
+        // Fetch vehicles again to remove the deleted one from the list
+        await fetchVehicles(ownerName);
+      } else {
+        _errorMessage = 'Failed to delete the vehicle.';
+      }
+    } catch (e) {
+      _errorMessage = 'Error while deleting vehicle: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }
