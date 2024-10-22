@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class VehicleService {
-  static const String _baseUrl = 'https://your-backend-api.com/api'; // Replace with your backend URL
+  static const String _baseUrl = 'https://projecthighwayplus-1.onrender.com'; // Updated backend URL
 
   // Method to add a new vehicle
   Future<bool> addVehicle({
@@ -44,9 +44,9 @@ class VehicleService {
     }
   }
 
-  // Method to fetch a list of vehicles for a specific owner
-  Future<List<Map<String, dynamic>>?> fetchVehicles(String ownerId) async {
-    final url = Uri.parse('$_baseUrl/vehicles?ownerId=$ownerId');
+  // Method to fetch a list of vehicles for a specific phone number
+  Future<List<Map<String, dynamic>>?> fetchVehicles(String phoneNumber) async {
+    final url = Uri.parse('$_baseUrl/vehicle-owner/show-vehicles/$phoneNumber');
     try {
       final response = await http.get(url);
 

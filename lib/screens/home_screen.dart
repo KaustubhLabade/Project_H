@@ -116,7 +116,11 @@ class HomeScreen extends StatelessWidget {
         } else {
           Navigator.pushNamed(context, routeName).catchError((error) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Route not found')),
+              SnackBar(
+                content: const Text('Route not found'),
+                backgroundColor: Colors.redAccent,
+                duration: Duration(seconds: 2),
+              ),
             );
           });
         }

@@ -8,7 +8,8 @@ import 'screens/my_vehicles_screen.dart';
 import 'screens/journey_history_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/membership_screen.dart';
-import 'screens/owner_confirmation_screen.dart'; // Import the Owner Confirmation screen
+import 'screens/owner_confirmation_screen.dart';
+import 'screens/vehicle_list_screen.dart'; // Import the Vehicle List screen
 
 void main() {
   runApp(MyApp());
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => LoginScreen(),
         '/otpScreen': (context) => OtpScreen(),
-        '/ownerConfirmationScreen': (context) => OwnerConfirmationScreen(), // Register the Owner Confirmation screen route
+        '/ownerConfirmationScreen': (context) => OwnerConfirmationScreen(),
         '/vehicleFormScreen': (context) => VehicleFormScreen(),
         '/homeScreen': (context) => HomeScreen(),
         '/profileScreen': (context) => ProfileScreen(
@@ -41,7 +42,8 @@ class MyApp extends StatelessWidget {
         '/myVehicles': (context) => MyVehiclesScreen(),
         '/journeyHistory': (context) => JourneyHistoryScreen(),
         '/settings': (context) => SettingsScreen(),
-        '/membershipScreen': (context) => MembershipScreen(), // Register the Membership screen route
+        '/membershipScreen': (context) => MembershipScreen(),
+        '/vehicleListScreen': (context) => VehicleListScreen(phoneNumber: '9881820701'), // Register the Vehicle List screen
       },
     );
   }
